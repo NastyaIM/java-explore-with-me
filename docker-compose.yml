@@ -9,7 +9,7 @@ services:
     ports:
       - "9090:9090"
     environment:
-      - EWM_DATASOURSE_URL=jdbc:postgresql://localhost:5432
+      - EWM_DATASOURSE_URL=jdbc:postgresql://ewm-stat-db:5432
 
   stats-db:
     image: postgres:14-alpine
@@ -21,9 +21,24 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=ewm-stats
 
-#  ewm-service:
-#    ports:
-#      - "8080:8080"
-#
-#  ewm-db:
-#    image: postgres:14-alpine
+  ewm-service:
+    build: main
+    image: ewm-main-server
+    container_name: ewm-main-server
+    depends_on:
+      - ewm-db
+      - stats-server
+    ports:
+      - "8080:8080"
+    environment:
+      - EWM_DATASOURSE_URL=jdbc:postgresql://ewm-main-db:5432
+
+  ewm-db:
+    image: postgres:14-alpine
+    container_name: ewm-main-db
+    ports:
+      - "6543:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=ewm-main
