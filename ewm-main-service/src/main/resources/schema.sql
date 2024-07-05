@@ -62,7 +62,7 @@ create table if not exists compilations (
   id bigint GENERATED always AS IDENTITY not null,
   pinned boolean,
   title varchar(50) not null,
-  constraint pk_users primary key (id)
+  constraint pk_compilations primary key (id)
 );
 
 create table if not exists events_compilations (
