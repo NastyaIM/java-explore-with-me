@@ -11,7 +11,7 @@ import javax.validation.constraints.PositiveOrZero;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageDto {
+public class PageParams {
     @PositiveOrZero
     private Integer from;
     @PositiveOrZero

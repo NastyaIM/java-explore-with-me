@@ -8,7 +8,7 @@ import ru.practicum.users.UserMapper;
 import ru.practicum.users.dto.UserDto;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
-import ru.practicum.utils.PageDto;
+import ru.practicum.utils.PageParams;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserDto> get(List<Long> ids, PageDto pageParams) {
+    public List<UserDto> get(List<Long> ids, PageParams pageParams) {
         List<User> users;
         PageRequest page = PageRequest.of(pageParams.getFrom() / pageParams.getSize(), pageParams.getSize());
         if (ids.isEmpty()) {
@@ -33,14 +33,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public UserDto save(UserDto userDto) {
-        User user = userRepository.save(userMapper.toUser(userDto));
-        return userMapper.toUserDto(user);
+        return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
     }
 
     @Override
     public void delete(long id) {
         userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User with id={} was not found" + id));
+                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", id)));
         userRepository.deleteById(id);
     }
 }
