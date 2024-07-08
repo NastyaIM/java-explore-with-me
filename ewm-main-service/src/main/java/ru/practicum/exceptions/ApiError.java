@@ -1,10 +1,8 @@
 package ru.practicum.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import ru.practicum.utils.Constants;
 
 import java.time.LocalDateTime;

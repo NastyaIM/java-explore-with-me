@@ -22,5 +22,4 @@ public class Stats {
     private String ip;
     @Column(name = "times_tamp", nullable = false)
     private LocalDateTime timestamp;
-    //private Integer hits;
 }

@@ -2,7 +2,7 @@ package ru.practicum.categories.adminar.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.categories.CategoryMapper;
+import ru.practicum.categories.dto.CategoryMapper;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.dto.NewCategoryDto;
 import ru.practicum.categories.model.Category;

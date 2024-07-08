@@ -1,4 +1,4 @@
-package ru.practicum.categories;
+package ru.practicum.categories.dto;
 
 import org.mapstruct.Mapper;
 import ru.practicum.categories.dto.CategoryDto;

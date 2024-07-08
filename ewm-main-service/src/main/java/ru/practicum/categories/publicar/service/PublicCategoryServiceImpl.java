@@ -3,7 +3,7 @@ package ru.practicum.categories.publicar.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.categories.CategoryMapper;
+import ru.practicum.categories.dto.CategoryMapper;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
@@ -22,7 +22,7 @@ public class PublicCategoryServiceImpl implements PublicCategoryService {
     @Override
     public List<CategoryDto> getAll(PageParams pageParams) {
         return categoryRepository
-                .findAll(PageRequest.of(pageParams.getFrom() / pageParams.getSize(), pageParams.getSize()))
+                .findAll(pageParams.getPageRequest())
                 .getContent()
                 .stream()
                 .map(categoryMapper::toCategoryDto)

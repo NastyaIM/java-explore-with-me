@@ -1,4 +1,4 @@
-package ru.practicum.users;
+package ru.practicum.users.dto;
 
 import org.mapstruct.Mapper;
 import ru.practicum.users.dto.UserDto;

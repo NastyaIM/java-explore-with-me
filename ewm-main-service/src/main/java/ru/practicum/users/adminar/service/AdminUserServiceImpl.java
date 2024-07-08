@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.exceptions.NotFoundException;
-import ru.practicum.users.UserMapper;
+import ru.practicum.users.dto.UserMapper;
 import ru.practicum.users.dto.UserDto;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
@@ -22,7 +22,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public List<UserDto> get(List<Long> ids, PageParams pageParams) {
         List<User> users;
-        PageRequest page = PageRequest.of(pageParams.getFrom() / pageParams.getSize(), pageParams.getSize());
+        PageRequest page = pageParams.getPageRequest();
         if (ids.isEmpty()) {
             users = userRepository.findAll(page).getContent();
         } else {

@@ -3,7 +3,7 @@ package ru.practicum.utils;
 public class PathConstants {
     public static final String BY_ID = "/{id}";
     public static final String REQUEST_ID = "/{requestId}";
-    public static final String EVENT_ID = "/{eventId}";
+    public static final String USER_ID = "/{userId}";
     public static final String ADMIN_AR = "/admin";
     public static final String USERS = "/users";
     public static final String COMPILATIONS = "/compilations";

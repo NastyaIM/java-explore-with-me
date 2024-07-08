@@ -24,26 +24,31 @@ create table if not exists users (
 
 create table if not exists locations (
   id bigint GENERATED always AS IDENTITY not null,
-  lat float not null,
-  lon float not null,
+  lat double not null,
+  lon double not null,
   constraint pk_locations primary key (id)
 );
 
 create table if not exists events (
   id bigint GENERATED always AS IDENTITY not null,
   annotation varchar(2000) not null,
-  category_id int not null,
+  category_id bigint not null,
   description varchar(7000) not null,
+  created_date timestamp not null,
   event_date timestamp not null,
-  location_id int not null,
-  paid boolean,
-  participantLimit int,
-  requestModeration boolean,
+  initiator_id bigint not null,
+  location_id bigint not null,
+  paid boolean not null,
+  participant_limit int not null,
+  request_moderation boolean not null,
+  published_date timestamp,
+  state varchar not null,
   title varchar(120) not null,
 
   constraint pk_events primary key (id),
   constraint fk_events_to_categories foreign key(category_id) references categories(id),
-  constraint fk_events_to_locations foreign key(location_id) references locations(id)
+  constraint fk_events_to_locations foreign key(location_id) references locations(id),
+  constraint fk_events_to_users foreign key(initiator_id) references users(id)
 );
 
 create table if not exists requests (
