@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.users.dto.NewUserDto;
 import ru.practicum.users.dto.UserMapper;
 import ru.practicum.users.dto.UserDto;
 import ru.practicum.users.model.User;
@@ -32,7 +33,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
-    public UserDto save(UserDto userDto) {
+    public UserDto save(NewUserDto userDto) {
         return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
     }
 

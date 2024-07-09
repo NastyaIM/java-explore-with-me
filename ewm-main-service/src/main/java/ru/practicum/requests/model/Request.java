@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.events.model.Event;
+import ru.practicum.requests.dto.StatusRequest;
 import ru.practicum.users.model.User;
 import ru.practicum.utils.State;
 
@@ -30,5 +31,5 @@ public class Request {
     @JoinColumn(name = "requester_id")
     private User requester;
     @Enumerated(EnumType.STRING)
-    private State status;
+    private StatusRequest status;
 }

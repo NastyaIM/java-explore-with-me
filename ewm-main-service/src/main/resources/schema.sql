@@ -54,8 +54,8 @@ create table if not exists events (
 create table if not exists requests (
   id bigint GENERATED always AS IDENTITY not null,
   created timestamp,
-  event_id int,
-  requester_id int,
+  event_id bigint,
+  requester_id bigint,
   status varchar,
   constraint pk_requests primary key (id),
   constraint fk_requests_to_events foreign key(event_id) references events(id),

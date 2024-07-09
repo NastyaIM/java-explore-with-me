@@ -54,7 +54,7 @@ public class PrivateEventController {
     }
 
     @GetMapping(PathConstants.BY_ID + PathConstants.REQUESTS)
-    public ParticipationRequestDto getRequests(@PathVariable long userId,
+    public List<ParticipationRequestDto> getRequests(@PathVariable long userId,
                                                @PathVariable long id) {
         return privateEventService.getRequests(userId, id);
     }

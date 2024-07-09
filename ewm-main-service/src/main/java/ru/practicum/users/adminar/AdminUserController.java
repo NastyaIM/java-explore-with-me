@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.users.adminar.service.AdminUserService;
+import ru.practicum.users.dto.NewUserDto;
 import ru.practicum.users.dto.UserDto;
 import ru.practicum.utils.PageParams;
 import ru.practicum.utils.PathConstants;
@@ -29,7 +30,7 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto save(@Valid @RequestBody UserDto userDto) {
+    public UserDto save(@Valid @RequestBody NewUserDto userDto) {
         log.info("Сохранение пользователя {}", userDto);
         return adminUserService.save(userDto);
     }

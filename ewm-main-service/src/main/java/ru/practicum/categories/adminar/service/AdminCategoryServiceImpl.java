@@ -23,18 +23,18 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     public void delete(long id) {
-        checkNotFound(id);
+        findCategory(id);
         categoryRepository.deleteById(id);
     }
 
     @Override
     public CategoryDto update(long id, NewCategoryDto newCategoryDto) {
-        Category category = checkNotFound(id);
+        Category category = findCategory(id);
         category.setName(newCategoryDto.getName());
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
-    private Category checkNotFound(long id) {
+    private Category findCategory(long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", id)));
     }
