@@ -8,6 +8,7 @@ import ru.practicum.events.dto.*;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exceptions.DataIntegrityViolationException;
+import ru.practicum.exceptions.IncorrectRequestException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.locations.dto.LocationMapper;
 import ru.practicum.locations.repository.LocationRepository;
@@ -136,27 +137,33 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         Event event = findEvent(id);
         List<Request> requests = requestRepository.findAllByRequesterIdAndEventIdAndIdIn(userId, id,
                 requestStatusUpdate.getRequestIds());
-
-        int requestCountToLimit;
-        int confirmedRequestCount = requestRepository.findCountByRequesterIdAndEventIdAndStatus(userId, id, StatusRequest.CONFIRMED);
-        if (event.getParticipantLimit().equals(confirmedRequestCount)) {
-            throw new DataIntegrityViolationException("The participant limit has been reached");
-        } else {
-            requestCountToLimit = event.getParticipantLimit() - confirmedRequestCount;
-        }
-
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(new ArrayList<>(), new ArrayList<>());
-        for (Request request : requests) {
-            if (!request.getStatus().equals(StatusRequest.PENDING)) {
-                throw new DataIntegrityViolationException("Request must have status PENDING");
-            }
-            if (requestCountToLimit == 0 || requestStatusUpdate.getStatus().equals(StatusRequest.REJECTED)) {
-                request.setStatus(StatusRequest.REJECTED);
-                result.getRejectedRequests().add(requestMapper.toRequestDto(request));
-            } else {
-                request.setStatus(StatusRequest.CONFIRMED);
+
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+            for (Request request : requests) {
                 result.getConfirmedRequests().add(requestMapper.toRequestDto(request));
-                requestCountToLimit--;
+            }
+        } else {
+            int requestCountToLimit;
+            int confirmedRequestCount = requestRepository.findCountByRequesterIdAndEventIdAndStatus(userId, id, StatusRequest.CONFIRMED);
+            if (event.getParticipantLimit().equals(confirmedRequestCount)) {
+                throw new DataIntegrityViolationException("The participant limit has been reached");
+            } else {
+                requestCountToLimit = event.getParticipantLimit() - confirmedRequestCount;
+            }
+
+            for (Request request : requests) {
+                if (!request.getStatus().equals(StatusRequest.PENDING)) {
+                    throw new DataIntegrityViolationException("Request must have status PENDING");
+                }
+                if (requestCountToLimit == 0 || requestStatusUpdate.getStatus().equals(StatusRequest.REJECTED)) {
+                    request.setStatus(StatusRequest.REJECTED);
+                    result.getRejectedRequests().add(requestMapper.toRequestDto(request));
+                } else {
+                    request.setStatus(StatusRequest.CONFIRMED);
+                    result.getConfirmedRequests().add(requestMapper.toRequestDto(request));
+                    requestCountToLimit--;
+                }
             }
         }
         return result;
@@ -179,7 +186,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
     public void checkDateTime(LocalDateTime dateTime) {
         if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new DataIntegrityViolationException("Field: eventDate. " +
+            throw new IncorrectRequestException("Field: eventDate. " +
                     "Error: должно содержать дату, которая еще не наступила. " +
                     "Value: " + dateTime);
         }
