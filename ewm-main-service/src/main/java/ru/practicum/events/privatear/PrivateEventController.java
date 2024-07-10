@@ -9,7 +9,6 @@ import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.NewEventDto;
 import ru.practicum.events.dto.UpdateEventUserRequest;
 import ru.practicum.events.privatear.service.PrivateEventService;
-import ru.practicum.locations.dto.LocationDto;
 import ru.practicum.requests.dto.EventRequestStatusUpdate;
 import ru.practicum.requests.dto.EventRequestStatusUpdateResult;
 import ru.practicum.requests.dto.ParticipationRequestDto;
@@ -55,7 +54,7 @@ public class PrivateEventController {
 
     @GetMapping(PathConstants.BY_ID + PathConstants.REQUESTS)
     public List<ParticipationRequestDto> getRequests(@PathVariable long userId,
-                                               @PathVariable long id) {
+                                                     @PathVariable long id) {
         return privateEventService.getRequests(userId, id);
     }
 

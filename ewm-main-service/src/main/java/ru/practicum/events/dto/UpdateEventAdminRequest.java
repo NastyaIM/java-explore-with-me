@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateEventUserRequest {
+public class UpdateEventAdminRequest {
     @Size(min = 20, max = 2000)
     private String annotation;
     private Long category;
@@ -29,7 +29,7 @@ public class UpdateEventUserRequest {
     @PositiveOrZero
     private Integer participantLimit;
     private Boolean requestModeration;
-    private UserStateAction stateAction;
+    private AdminStateAction stateAction;
     @Size(min = 3, max = 120)
     private String title;
 }

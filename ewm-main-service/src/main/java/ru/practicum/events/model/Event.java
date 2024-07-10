@@ -7,7 +7,7 @@ import lombok.Setter;
 import ru.practicum.categories.model.Category;
 import ru.practicum.locations.model.Location;
 import ru.practicum.users.model.User;
-import ru.practicum.utils.State;
+import ru.practicum.events.dto.State;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -45,6 +45,8 @@ public class Event {
     private Integer participantLimit;
     @Column(name = "request_moderation", nullable = false)
     private Boolean requestModeration;
+    @Column(name = "confirmed_requests", nullable = false)
+    private Integer confirmedRequests;
     @Column(name = "published_date")
     private LocalDateTime publishedOn;
     @Enumerated(EnumType.STRING)

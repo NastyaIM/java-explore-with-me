@@ -18,7 +18,7 @@ import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 import ru.practicum.utils.PageParams;
-import ru.practicum.utils.State;
+import ru.practicum.events.dto.State;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,6 +58,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         newEvent.setCreatedOn(LocalDateTime.now());
         newEvent.setInitiator(findUser(userId));
         newEvent.setState(State.PENDING);
+        newEvent.setConfirmedRequests(0);
 
         EventFullDto savedEvent = eventMapper.toEventFullDto(eventRepository.save(newEvent));
         //savedEvent.setViews();
@@ -107,7 +108,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
             event.setRequestModeration(updateEvent.getRequestModeration());
         }
         if (updateEvent.getStateAction() != null) {
-            if (updateEvent.getStateAction().equals(StateAction.CANCEL_REVIEW)) {
+            if (updateEvent.getStateAction().equals(UserStateAction.CANCEL_REVIEW)) {
                 event.setState(State.CANCELED);
             } else {
                 event.setState(State.PENDING);
@@ -135,21 +136,20 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     public EventRequestStatusUpdateResult updateStatusRequests(long userId, long id, EventRequestStatusUpdate requestStatusUpdate) {
         findUser(userId);
         Event event = findEvent(id);
-        List<Request> requests = requestRepository.findAllByRequesterIdAndEventIdAndIdIn(userId, id,
-                requestStatusUpdate.getRequestIds());
-        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(new ArrayList<>(), new ArrayList<>());
+        List<Request> requests = requestRepository.findAllByIdIn(requestStatusUpdate.getRequestIds());
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             for (Request request : requests) {
-                result.getConfirmedRequests().add(requestMapper.toRequestDto(request));
+                confirmedRequests.add(requestMapper.toRequestDto(request));
             }
         } else {
             int requestCountToLimit;
-            int confirmedRequestCount = requestRepository.findCountByRequesterIdAndEventIdAndStatus(userId, id, StatusRequest.CONFIRMED);
-            if (event.getParticipantLimit().equals(confirmedRequestCount)) {
+            if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
                 throw new DataIntegrityViolationException("The participant limit has been reached");
             } else {
-                requestCountToLimit = event.getParticipantLimit() - confirmedRequestCount;
+                requestCountToLimit = event.getParticipantLimit() - event.getConfirmedRequests();
             }
 
             for (Request request : requests) {
@@ -158,33 +158,37 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 }
                 if (requestCountToLimit == 0 || requestStatusUpdate.getStatus().equals(StatusRequest.REJECTED)) {
                     request.setStatus(StatusRequest.REJECTED);
-                    result.getRejectedRequests().add(requestMapper.toRequestDto(request));
+                    rejectedRequests.add(requestMapper.toRequestDto(request));
                 } else {
                     request.setStatus(StatusRequest.CONFIRMED);
-                    result.getConfirmedRequests().add(requestMapper.toRequestDto(request));
+                    confirmedRequests.add(requestMapper.toRequestDto(request));
                     requestCountToLimit--;
+                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                 }
+                requestRepository.save(request);
             }
         }
+        eventRepository.save(event);
+        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
         return result;
     }
 
-    public User findUser(long userId) {
+    private User findUser(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", userId)));
     }
 
-    public Event findEvent(long id) {
+    private Event findEvent(long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
     }
 
-    public Category findCategory(long categoryId) {
+    private Category findCategory(long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", categoryId)));
     }
 
-    public void checkDateTime(LocalDateTime dateTime) {
+    private void checkDateTime(LocalDateTime dateTime) {
         if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
             throw new IncorrectRequestException("Field: eventDate. " +
                     "Error: должно содержать дату, которая еще не наступила. " +

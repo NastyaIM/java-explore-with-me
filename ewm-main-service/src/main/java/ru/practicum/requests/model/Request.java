@@ -4,7 +4,6 @@ import lombok.*;
 import ru.practicum.events.model.Event;
 import ru.practicum.requests.dto.StatusRequest;
 import ru.practicum.users.model.User;
-import ru.practicum.utils.State;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

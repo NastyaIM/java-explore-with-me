@@ -11,8 +11,9 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findAllByRequesterIdAndEventId(long requesterId, long eventId);
 
-    List<Request> findAllByRequesterIdAndEventIdAndIdIn(long requesterId, long eventId, List<Long> ids);
+//    List<Request> findAllByRequesterIdAndEventIdAndIdIn(long requesterId, long eventId, List<Long> ids);
+    List<Request> findAllByIdIn(List<Long> ids);
 
-    int findCountByRequesterIdAndEventIdAndStatus(long requesterId, long eventId, StatusRequest status);
+//    List<Request> findByRequesterIdAndEventIdAndStatus(long requesterId, long eventId, StatusRequest status);
     List<Request> findAllByRequesterId(long requesterId);
 }

@@ -13,7 +13,7 @@ import ru.practicum.requests.model.Request;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
-import ru.practicum.utils.State;
+import ru.practicum.events.dto.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,7 +48,7 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
             throw new DataIntegrityViolationException("Event must have status published");
         }
         if (event.getParticipantLimit() != 0 && event.getParticipantLimit()
-                .equals(requestRepository.findCountByRequesterIdAndEventIdAndStatus(userId, eventId, StatusRequest.CONFIRMED))) {
+                .equals(event.getConfirmedRequests())) {
             throw new DataIntegrityViolationException("The participant limit has been reached");
         }
         Request request = Request.builder()

@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.locations.dto.LocationDto;
-import ru.practicum.locations.model.Location;
 import ru.practicum.users.dto.UserShortDto;
 import ru.practicum.utils.Constants;
-import ru.practicum.utils.State;
 
 import java.time.LocalDateTime;
 
@@ -23,7 +21,7 @@ public class EventFullDto {
     private String annotation;
     private String description;
     private CategoryDto category;
-    private Long confirmedRequests;
+    private Integer confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime createdOn;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)

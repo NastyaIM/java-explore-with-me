@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.utils.State;
+import ru.practicum.events.dto.State;
 import ru.practicum.utils.Constants;
 
 import java.time.LocalDateTime;
@@ -20,5 +20,5 @@ public class ParticipationRequestDto {
     private LocalDateTime created;
     private Long event;
     private Long requester;
-    private State status;
+    private StatusRequest status;
 }

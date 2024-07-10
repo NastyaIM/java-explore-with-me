@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(PathConstants.ADMIN_AR + PathConstants.USERS)
+@RequestMapping(PathConstants.ADMIN + PathConstants.USERS)
 @RequiredArgsConstructor
 @Slf4j
 public class AdminUserController {

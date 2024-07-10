@@ -12,7 +12,7 @@ import ru.practicum.utils.PathConstants;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(PathConstants.ADMIN_AR + PathConstants.CATEGORIES)
+@RequestMapping(PathConstants.ADMIN + PathConstants.CATEGORIES)
 @RequiredArgsConstructor
 @Slf4j
 public class AdminCategoryController {
