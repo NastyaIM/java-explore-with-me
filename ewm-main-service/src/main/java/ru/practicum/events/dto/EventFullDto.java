@@ -35,5 +35,5 @@ public class EventFullDto {
     private LocalDateTime publishedOn;
     private State state;
     private String title;
-    private Long views;
+    private Long views = 0L;
 }

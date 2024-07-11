@@ -59,9 +59,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         newEvent.setState(State.PENDING);
         newEvent.setConfirmedRequests(0);
 
-        EventFullDto savedEvent = eventMapper.toEventFullDto(eventRepository.save(newEvent));
-        //savedEvent.setViews();
-        return savedEvent;
+        return eventMapper.toEventFullDto(eventRepository.save(newEvent));
     }
 
     @Override
