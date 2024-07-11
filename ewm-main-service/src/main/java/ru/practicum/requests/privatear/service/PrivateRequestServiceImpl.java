@@ -2,6 +2,7 @@ package ru.practicum.requests.privatear.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.events.dto.State;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exceptions.DataIntegrityViolationException;
@@ -13,7 +14,6 @@ import ru.practicum.requests.model.Request;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
-import ru.practicum.events.dto.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,38 +51,49 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
                 .equals(event.getConfirmedRequests())) {
             throw new DataIntegrityViolationException("The participant limit has been reached");
         }
+
         Request request = Request.builder()
                 .created(LocalDateTime.now())
                 .event(event)
                 .requester(requester)
                 .build();
-        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
-            request.setStatus(StatusRequest.CONFIRMED);
-        } else {
-            request.setStatus(StatusRequest.PENDING);
+        updateStatusRequest(event, request);
+        try {
+            return requestMapper.toRequestDto(requestRepository.save(request));
+        } catch (RuntimeException e) {
+            throw new DataIntegrityViolationException("Request is already exists");
         }
-        return requestMapper.toRequestDto(requestRepository.save(request));
     }
 
     @Override
     public ParticipationRequestDto cancel(long userId, long id) {
-        User requester = findUser(userId);
+        findUser(userId);
         Request request = findRequest(id);
         request.setStatus(StatusRequest.CANCELED);
         return requestMapper.toRequestDto(request);
     }
 
-    public User findUser(long userId) {
+    private void updateStatusRequest(Event event, Request request) {
+        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
+            request.setStatus(StatusRequest.CONFIRMED);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
+        } else {
+            request.setStatus(StatusRequest.PENDING);
+        }
+    }
+
+    private User findUser(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", userId)));
     }
 
-    public Event findEvent(long eventId) {
+    private Event findEvent(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
     }
 
-    public Request findRequest(long id) {
+    private Request findRequest(long id) {
         return requestRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", id)));
     }

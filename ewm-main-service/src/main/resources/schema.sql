@@ -60,7 +60,8 @@ create table if not exists requests (
   status varchar,
   constraint pk_requests primary key (id),
   constraint fk_requests_to_events foreign key(event_id) references events(id),
-  constraint fk_requests_to_users foreign key(requester_id) references users(id)
+  constraint fk_requests_to_users foreign key(requester_id) references users(id),
+  constraint uq_event_requester unique (event_id, requester_id)
 );
 
 

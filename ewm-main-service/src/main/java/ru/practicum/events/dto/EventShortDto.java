@@ -9,8 +9,6 @@ import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.users.dto.UserShortDto;
 import ru.practicum.utils.Constants;
 
-import javax.swing.text.StyledEditorKit;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter

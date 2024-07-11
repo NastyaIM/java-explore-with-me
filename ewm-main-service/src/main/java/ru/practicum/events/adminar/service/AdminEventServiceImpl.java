@@ -12,7 +12,10 @@ import ru.practicum.exceptions.DataIntegrityViolationException;
 import ru.practicum.exceptions.IncorrectRequestException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.locations.dto.LocationMapper;
+import ru.practicum.locations.model.Location;
+import ru.practicum.locations.repository.LocationRepository;
 import ru.practicum.users.repository.UserRepository;
+import ru.practicum.utils.PageParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,16 +27,17 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
 
     private final EventMapper eventMapper;
     private final LocationMapper locationMapper;
 
 
     @Override
-    public List<EventFullDto> getAll(GetEventAdminRequest request) {
+    public List<EventFullDto> getAll(GetEventAdminRequest request, PageParams pageParams) {
         updateNullFields(request);
 
-        Pageable pageable = request.getPageParams().getPageRequest();
+        Pageable pageable = pageParams.getPageRequest();
         List<Event> events;
         LocalDateTime start = request.getRangeStart();
         LocalDateTime end = request.getRangeEnd();
@@ -79,7 +83,8 @@ public class AdminEventServiceImpl implements AdminEventService {
             event.setDescription(request.getDescription());
         }
         if (request.getLocation() != null) {
-            event.setLocation(locationMapper.toLocation(request.getLocation()));
+            Location location = locationRepository.save(locationMapper.toLocation(request.getLocation()));
+            event.setLocation(location);
         }
         if (request.getPaid() != null) {
             event.setPaid(request.getPaid());
@@ -114,7 +119,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         return eventMapper.toEventFullDto(eventRepository.save(event));
     }
 
-    public Event findEvent(long id) {
+    private Event findEvent(long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
     }

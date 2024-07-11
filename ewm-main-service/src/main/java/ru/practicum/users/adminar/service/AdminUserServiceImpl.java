@@ -3,10 +3,11 @@ package ru.practicum.users.adminar.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.practicum.exceptions.DataIntegrityViolationException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.users.dto.NewUserDto;
-import ru.practicum.users.dto.UserMapper;
 import ru.practicum.users.dto.UserDto;
+import ru.practicum.users.dto.UserMapper;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 import ru.practicum.utils.PageParams;
@@ -34,7 +35,12 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public UserDto save(NewUserDto userDto) {
-        return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
+        try {
+            return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
+        } catch (RuntimeException e) {
+            throw new DataIntegrityViolationException("Email is already exists");
+        }
+
     }
 
     @Override

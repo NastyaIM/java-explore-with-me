@@ -18,7 +18,6 @@ import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
 import ru.practicum.utils.PageParams;
-import ru.practicum.events.dto.State;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -124,9 +123,12 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Override
     public List<ParticipationRequestDto> getRequests(long userId, long id) {
         findUser(userId);
-        findEvent(id);
+        Event event = findEvent(id);
+        if (event.getInitiator().getId() != userId) {
+            throw new IncorrectRequestException("");
+        }
         return requestRepository
-                .findAllByRequesterIdAndEventId(userId, id)
+                .findAllByEventId(id)
                 .stream()
                 .map(requestMapper::toRequestDto)
                 .collect(Collectors.toList());
@@ -158,19 +160,18 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 }
                 if (requestCountToLimit == 0 || requestStatusUpdate.getStatus().equals(StatusRequest.REJECTED)) {
                     request.setStatus(StatusRequest.REJECTED);
-                    rejectedRequests.add(requestMapper.toRequestDto(request));
+                    rejectedRequests.add(requestMapper.toRequestDto(requestRepository.save(request)));
                 } else {
                     request.setStatus(StatusRequest.CONFIRMED);
-                    confirmedRequests.add(requestMapper.toRequestDto(request));
+                    confirmedRequests.add(requestMapper.toRequestDto(requestRepository.save(request)));
                     requestCountToLimit--;
                     event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                 }
-                requestRepository.save(request);
+                ;
             }
         }
         eventRepository.save(event);
-        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
-        return result;
+        return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
     }
 
     private User findUser(long userId) {

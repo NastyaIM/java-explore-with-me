@@ -14,12 +14,14 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetEventAdminRequest {
-    private List<Long> users;
-    private List<State> states;
+public class GetEventsPublicRequest {
+    private String text = "";
     private List<Long> categories;
+    private Boolean paid;
     @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime rangeStart;
     @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime rangeEnd;
+    private boolean onlyAvailable = false;
+    private String sort;
 }

@@ -8,6 +8,8 @@ import ru.practicum.events.model.Event;
 public interface EventMapper {
     @Mapping(target = "category.id", source = "newEventDto.category")
     Event toEvent(NewEventDto newEventDto);
+
     EventFullDto toEventFullDto(Event event);
+
     EventShortDto toEventShortDto(Event event);
 }

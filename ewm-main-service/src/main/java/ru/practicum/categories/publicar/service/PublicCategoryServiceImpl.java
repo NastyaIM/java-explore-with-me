@@ -1,10 +1,9 @@
 package ru.practicum.categories.publicar.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.categories.dto.CategoryMapper;
 import ru.practicum.categories.dto.CategoryDto;
+import ru.practicum.categories.dto.CategoryMapper;
 import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.exceptions.NotFoundException;

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatsResponse {
+    //private Long id;
     private String app;
     private String uri;
     private Long hits;
