@@ -21,11 +21,13 @@ public class PublicCompilationController {
     @GetMapping
     public List<CompilationDto> getAll(@RequestParam(required = false) Boolean pinned,
                                        @Valid PageParams pageParams) {
+        log.info("Получение списка компиляций с возможностью фильтрации");
         return publicCompilationService.getAll(pinned, pageParams);
     }
 
     @GetMapping(PathConstants.BY_ID)
     public CompilationDto getById(@PathVariable long id) {
+        log.info("Получение компиляции c id {}", id);
         return publicCompilationService.getById(id);
     }
 }

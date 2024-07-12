@@ -19,6 +19,7 @@ public class PrivateRequestController {
 
     @GetMapping
     public List<ParticipationRequestDto> getAll(@PathVariable long userId) {
+        log.info("Получение спика всех заявок пользователя с userId {}", userId);
         return privateRequestService.getAll(userId);
     }
 
@@ -26,12 +27,14 @@ public class PrivateRequestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto save(@PathVariable long userId,
                                         @RequestParam long eventId) {
+        log.info("Сохранение новой заявки на событие с eventId {}, пользователем с userId {}", eventId, userId);
         return privateRequestService.save(userId, eventId);
     }
 
     @PatchMapping(PathConstants.BY_ID + PathConstants.CANCEL)
     public ParticipationRequestDto cancel(@PathVariable long userId,
                                           @PathVariable long id) {
+        log.info("Отмена заявки с id {} пользователем с userId {}", id, userId);
         return privateRequestService.cancel(userId, id);
     }
 }

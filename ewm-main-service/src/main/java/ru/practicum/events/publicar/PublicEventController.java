@@ -24,21 +24,19 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class PublicEventController {
-    private final StatsClient statsClient;
     private final PublicEventService publicEventService;
-
-    @Value("${server.application.name:ewm-service}")
-    private String applicationName;
 
     @GetMapping
     public List<EventShortDto> getAll(@Valid GetEventsPublicRequest getEventsRequest,
                                       @Valid PageParams pageParams,
                                       HttpServletRequest request) {
+        log.info("Получение краткой информации о событиях с возможностью фильтрации");
         return publicEventService.getAll(getEventsRequest, pageParams, request);
     }
 
     @GetMapping(PathConstants.BY_ID)
     public EventFullDto getById(@PathVariable long id, HttpServletRequest request) {
+        log.info("Получение полной информации о событии с id {}", id);
         return publicEventService.getById(id, request);
     }
 }

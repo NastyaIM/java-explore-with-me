@@ -95,27 +95,10 @@ public class AdminEventServiceImpl implements AdminEventService {
         if (request.getRequestModeration() != null) {
             event.setRequestModeration(request.getRequestModeration());
         }
-        if (request.getStateAction() != null) {
-            if (request.getStateAction().equals(AdminStateAction.PUBLISH_EVENT)) {
-                if (event.getState().equals(State.PENDING)) {
-                    event.setState(State.PUBLISHED);
-                    event.setPublishedOn(LocalDateTime.now());
-                } else {
-                    throw new DataIntegrityViolationException("Event must have state PENDING");
-                }
-            } else {
-                if (event.getState().equals(State.PUBLISHED)) {
-                    throw new DataIntegrityViolationException("Event must have state PENDING or CANCELED");
-                } else {
-                    event.setState(State.CANCELED);
-                }
-
-            }
-        }
-
         if (request.getTitle() != null) {
             event.setTitle(request.getTitle());
         }
+        updateState(request.getStateAction(), event);
         return eventMapper.toEventFullDto(eventRepository.save(event));
     }
 
@@ -146,6 +129,25 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
         if (request.getStates() == null) {
             request.setStates(List.of(State.PUBLISHED, State.CANCELED, State.PENDING));
+        }
+    }
+
+    private void updateState(AdminStateAction stateAction, Event event) {
+        if (stateAction != null) {
+            if (stateAction.equals(AdminStateAction.PUBLISH_EVENT)) {
+                if (event.getState().equals(State.PENDING)) {
+                    event.setState(State.PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now());
+                } else {
+                    throw new DataIntegrityViolationException("Event must have state PENDING");
+                }
+            } else {
+                if (event.getState().equals(State.PUBLISHED)) {
+                    throw new DataIntegrityViolationException("Event must have state PENDING or CANCELED");
+                } else {
+                    event.setState(State.CANCELED);
+                }
+            }
         }
     }
 }

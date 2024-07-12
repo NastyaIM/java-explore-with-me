@@ -2,7 +2,7 @@ package ru.practicum.compilations.publicar.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.compilations.CompilationRepository;
+import ru.practicum.compilations.repository.CompilationRepository;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.CompilationMapper;
 import ru.practicum.compilations.model.Compilation;

@@ -29,6 +29,7 @@ public class PrivateEventController {
     public List<EventShortDto> getAll(@PathVariable long userId,
                                       @RequestParam(defaultValue = "0") int from,
                                       @RequestParam(defaultValue = "10") int size) {
+        log.info("Получение всех событий пользователя с id {}", userId);
         return privateEventService.getAll(userId, new PageParams(from, size));
     }
 
@@ -36,12 +37,14 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto save(@PathVariable long userId,
                              @Valid @RequestBody NewEventDto newEventDto) {
+        log.info("Сохранение нового события пользователем с id {}", userId);
         return privateEventService.save(userId, newEventDto);
     }
 
     @GetMapping(PathConstants.BY_ID)
     public EventFullDto getById(@PathVariable long userId,
                                 @PathVariable long id) {
+        log.info("Получение события c id {} пользователя с userId {}", id, userId);
         return privateEventService.getById(userId, id);
     }
 
@@ -49,12 +52,14 @@ public class PrivateEventController {
     public EventFullDto update(@PathVariable long userId,
                                @PathVariable long id,
                                @Valid @RequestBody UpdateEventUserRequest updateEvent) {
+        log.info("Обновление события с id {} пользвателем с userId {}", id, userId);
         return privateEventService.update(userId, id, updateEvent);
     }
 
     @GetMapping(PathConstants.BY_ID + PathConstants.REQUESTS)
     public List<ParticipationRequestDto> getRequests(@PathVariable long userId,
                                                      @PathVariable long id) {
+        log.info("Получение списка всех заявок на событие с id {}", id);
         return privateEventService.getRequests(userId, id);
     }
 
@@ -62,6 +67,7 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResult updateStatusRequests(@PathVariable long userId,
                                                                @PathVariable long id,
                                                                @RequestBody EventRequestStatusUpdate requestStatusUpdate) {
+        log.info("Обновление статусов заявок на событие с id {}", id);
         return privateEventService.updateStatusRequests(userId, id, requestStatusUpdate);
     }
 

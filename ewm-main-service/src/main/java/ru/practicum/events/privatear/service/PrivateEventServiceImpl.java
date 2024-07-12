@@ -165,7 +165,6 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                     requestCountToLimit--;
                     event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                 }
-                ;
             }
         }
         eventRepository.save(event);

@@ -20,30 +20,17 @@ import java.util.List;
 public class AdminEventController {
     private final AdminEventService adminEventService;
 
-//    @GetMapping
-//    public List<EventFullDto> getAll(@RequestParam(defaultValue = "") List<Long> users,
-//                                     @RequestParam(defaultValue = "") List<String> states,
-//                                     @RequestParam(defaultValue = "") List<Long> categories,
-//                                     @RequestParam(required = false)
-//                                     @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT) LocalDateTime rangeStart,
-//                                     @RequestParam(required = false)
-//                                     @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT) LocalDateTime rangeEnd,
-//                                     @RequestParam(defaultValue = "0") int from,
-//                                     @RequestParam(defaultValue = "10") int size) {
-//        List<State> statesSt = states.stream().map(State::from).collect(Collectors.toList());
-//        return adminEventService.getAll(new GetEventAdminRequest(users, statesSt, categories,
-//                rangeStart, rangeEnd, new PageParams(from, size)));
-//    }
-
     @GetMapping
     public List<EventFullDto> getAll(@Valid GetEventAdminRequest request,
                                      @Valid PageParams pageParams) {
+        log.info("Получение списка событий с возможной фильтрацией");
         return adminEventService.getAll(request, pageParams);
     }
 
     @PatchMapping(PathConstants.BY_ID)
     public EventFullDto update(@PathVariable long id,
                                @Valid @RequestBody UpdateEventAdminRequest request) {
+        log.info("Обновление события с id {}", id);
         return adminEventService.update(id, request);
     }
 }

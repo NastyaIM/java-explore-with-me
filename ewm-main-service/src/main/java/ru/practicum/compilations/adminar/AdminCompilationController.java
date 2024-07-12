@@ -22,17 +22,20 @@ public class AdminCompilationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto save(@Valid @RequestBody NewCompilationDto newCompilationDto) {
+        log.info("Сохранение новой компиляции {}", newCompilationDto);
         return adminCompilationService.save(newCompilationDto);
     }
 
     @DeleteMapping(PathConstants.BY_ID)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
+        log.info("Удаление компиляции с id {}", id);
         adminCompilationService.delete(id);
     }
 
     @PatchMapping(PathConstants.BY_ID)
     public CompilationDto update(@PathVariable long id, @Valid @RequestBody UpdateCompilationDto updateCompilationDto) {
+        log.info("Обновление компиляции с id {}", id);
         return adminCompilationService.update(id, updateCompilationDto);
     }
 }

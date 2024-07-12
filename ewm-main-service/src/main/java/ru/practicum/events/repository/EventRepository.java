@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.events.dto.State;
 import ru.practicum.events.model.Event;
@@ -40,6 +41,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and e.state = 'PUBLISHED' " +
             "and (:onlyAvailable is null or e.requestModeration = false or e.participantLimit = 0 " +
             "or e.participantLimit > e.confirmedRequests)")
-    Page<Event> search(String text, List<Long> categories, Boolean paid,
-                       LocalDateTime start, LocalDateTime end, boolean onlyAvailable, Pageable pageable);
+    Page<Event> search(@Param("text") String text, @Param("categories") List<Long> categories, @Param("paid") Boolean paid,
+                       @Param("start") LocalDateTime start, @Param("end") LocalDateTime end,
+                       @Param("onlyAvailable") boolean onlyAvailable, Pageable pageable);
 }
