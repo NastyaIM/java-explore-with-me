@@ -29,7 +29,7 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     private final StatsClient statsClient;
     @Value("${server.application.name:ewm-service}")
-    private final String applicationName;
+    private String applicationName;
 
     private final EventMapper eventMapper;
 
