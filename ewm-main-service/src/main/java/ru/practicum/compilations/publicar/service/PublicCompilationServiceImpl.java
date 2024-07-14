@@ -2,11 +2,11 @@ package ru.practicum.compilations.publicar.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.compilations.repository.CompilationRepository;
 import ru.practicum.compilations.dto.CompilationDto;
 import ru.practicum.compilations.dto.CompilationMapper;
 import ru.practicum.compilations.model.Compilation;
-import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.compilations.repository.CompilationRepository;
+import ru.practicum.utils.GeneralMethods;
 import ru.practicum.utils.PageParams;
 
 import java.util.List;
@@ -30,8 +30,7 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
 
     @Override
     public CompilationDto getById(long id) {
-        Compilation compilation = compilationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Compilation with id=%s was not found", id)));
+        Compilation compilation = GeneralMethods.findCompilation(id, compilationRepository);
         return compilationMapper.toCompilationDto(compilation);
     }
 }

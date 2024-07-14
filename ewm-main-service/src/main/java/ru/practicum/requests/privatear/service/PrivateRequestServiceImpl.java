@@ -1,11 +1,12 @@
 package ru.practicum.requests.privatear.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.practicum.events.dto.State;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
-import ru.practicum.exceptions.DataIntegrityViolationException;
+import ru.practicum.exceptions.DataIntegrityException;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.dto.RequestMapper;
@@ -14,9 +15,11 @@ import ru.practicum.requests.model.Request;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.users.model.User;
 import ru.practicum.users.repository.UserRepository;
+import ru.practicum.utils.GeneralMethods;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,17 +42,17 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
     @Override
     public ParticipationRequestDto save(long userId, long eventId) {
-        User requester = findUser(userId);
-        Event event = findEvent(eventId);
+        User requester = GeneralMethods.findUser(userId, userRepository);
+        Event event = GeneralMethods.findEvent(eventId, eventRepository);
         if (userId == event.getInitiator().getId()) {
-            throw new DataIntegrityViolationException("Initiator can't add a request to his event");
+            throw new DataIntegrityException("Initiator can't add a request to his event");
         }
         if (!event.getState().equals(State.PUBLISHED)) {
-            throw new DataIntegrityViolationException("Event must have status published");
+            throw new DataIntegrityException("Event must have status published");
         }
         if (event.getParticipantLimit() != 0 && event.getParticipantLimit()
                 .equals(event.getConfirmedRequests())) {
-            throw new DataIntegrityViolationException("The participant limit has been reached");
+            throw new DataIntegrityException("The participant limit has been reached");
         }
 
         Request request = Request.builder()
@@ -60,14 +63,14 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
         updateStatusRequest(event, request);
         try {
             return requestMapper.toRequestDto(requestRepository.save(request));
-        } catch (RuntimeException e) {
-            throw new DataIntegrityViolationException("Request is already exists");
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException(Objects.requireNonNull(e.getMessage()));
         }
     }
 
     @Override
     public ParticipationRequestDto cancel(long userId, long id) {
-        findUser(userId);
+        GeneralMethods.findUser(userId, userRepository);
         Request request = findRequest(id);
         request.setStatus(StatusRequest.CANCELED);
         return requestMapper.toRequestDto(request);
@@ -76,21 +79,10 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
     private void updateStatusRequest(Event event, Request request) {
         if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
             request.setStatus(StatusRequest.CONFIRMED);
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         } else {
             request.setStatus(StatusRequest.PENDING);
         }
-    }
-
-    private User findUser(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", userId)));
-    }
-
-    private Event findEvent(long eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
     }
 
     private Request findRequest(long id) {

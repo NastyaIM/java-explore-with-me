@@ -21,19 +21,19 @@ public class EventFullDto {
     private String annotation;
     private String description;
     private CategoryDto category;
-    private Integer confirmedRequests;
+    private int confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime createdOn;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
     private UserShortDto initiator;
     private LocationDto location;
-    private Boolean paid;
-    private Integer participantLimit = 0;
-    private Boolean requestModeration = true;
+    private boolean paid;
+    private int participantLimit;
+    private boolean requestModeration = true;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime publishedOn;
     private State state;
     private String title;
-    private Long views = 0L;
+    private long views;
 }

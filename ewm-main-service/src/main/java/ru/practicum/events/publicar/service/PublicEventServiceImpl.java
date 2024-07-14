@@ -13,12 +13,16 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exceptions.IncorrectRequestException;
 import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.utils.GeneralMethods;
 import ru.practicum.utils.PageParams;
+import ru.practicum.utils.PathConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,52 +51,77 @@ public class PublicEventServiceImpl implements PublicEventService {
             getPublicRequest.setRangeStart(LocalDateTime.now());
         }
 
-        sendHitRequestToStatsService(request);
+        String rr = request.getRequestURI();
         List<Event> events = eventRepository.search(getPublicRequest.getText(), getPublicRequest.getCategories(), getPublicRequest.getPaid(), getPublicRequest.getRangeStart(),
                         getPublicRequest.getRangeEnd(), getPublicRequest.isOnlyAvailable(), pageParams.getPageRequest())
                 .getContent();
-
-        events.forEach(this::setEventViews);
+        sendHitRequestToStatsService(events, request);
+        Map<Long, Long> views = getEventsViews(events);
 
         return sort(getPublicRequest.getSort(),
                 events.stream()
                         .map(eventMapper::toEventShortDto)
+                        .peek(event -> {
+                            event.setViews(views.getOrDefault(event.getId(), 0L));
+                        })
                         .collect(Collectors.toList()));
     }
 
     @Override
     public EventFullDto getById(long id, HttpServletRequest request) {
-        sendHitRequestToStatsService(request);
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
+        Event event = GeneralMethods.findEvent(id, eventRepository);
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException(String.format("Event with id=%d was not found", id));
         }
-        setEventViews(event);
-        return eventMapper.toEventFullDto(event);
+        sendHitRequestToStatsService(List.of(event), request);
+        long views = getEventsViews(event);
+        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+        eventFullDto.setViews(views);
+        return eventFullDto;
     }
 
-    private void sendHitRequestToStatsService(HttpServletRequest request) {
-        statsClient.hit(StatsRequest.builder()
-                .app(applicationName)
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
+    private void sendHitRequestToStatsService(List<Event> events, HttpServletRequest request) {
+        for (Event event : events) {
+            String uri = request.getRequestURI() + "/" + event.getId();
+            statsClient.hit(StatsRequest.builder()
+                    .app(applicationName)
+                    .uri(uri)
+                    .ip(request.getRemoteAddr())
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        }
+    }
+
+    public Map<Long, Long> getEventsViews(List<Event> events) {
+        LocalDateTime start = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo)
+                .orElseThrow(() -> new NotFoundException(""));
+        List<String> uris = events.stream()
+                .map(event -> String.format("/events/%s", event.getId()))
+                .collect(Collectors.toList());
+        List<StatsResponse> views = statsClient.stats(GetStatsRequest.builder()
+                .start(start)
+                .end(LocalDateTime.now())
+                .uris(uris)
+                .unique(true)
                 .build());
+        Map<Long, Long> eventViews = new HashMap<>();
+        for (StatsResponse view : views) {
+            long eventId = Long.parseLong(view.getUri().substring(PathConstants.EVENTS.length() + 1));
+            eventViews.put(eventId, view.getHits());
+        }
+        return eventViews;
     }
 
-    public void setEventViews(Event event) {
+    public long getEventsViews(Event event) {
         List<StatsResponse> views = statsClient.stats(GetStatsRequest.builder()
                 .start(event.getPublishedOn())
                 .end(LocalDateTime.now())
                 .uris(List.of("/events/" + event.getId()))
                 .unique(true)
                 .build());
-        if (views.isEmpty()) {
-            event.setViews(0L);
-        } else {
-            event.setViews(views.get(0).getHits());
-        }
+        return views.get(0).getHits();
     }
 
     private List<EventShortDto> sort(String sort, List<EventShortDto> events) {

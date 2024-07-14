@@ -1,14 +1,16 @@
 package ru.practicum.categories.adminar.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.dto.CategoryMapper;
 import ru.practicum.categories.dto.NewCategoryDto;
 import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
-import ru.practicum.exceptions.DataIntegrityViolationException;
-import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.utils.GeneralMethods;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,34 +22,29 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     public CategoryDto save(NewCategoryDto newCategoryDto) {
         try {
             return categoryMapper.toCategoryDto(categoryRepository.save(categoryMapper.toCategory(newCategoryDto)));
-        } catch (RuntimeException e) {
-            throw new DataIntegrityViolationException("Category name is already exists");
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException(Objects.requireNonNull(e.getMessage()));
         }
     }
 
     @Override
     public void delete(long id) {
-        findCategory(id);
+        GeneralMethods.findCategory(id, categoryRepository);
         try {
             categoryRepository.deleteById(id);
-        } catch (RuntimeException e) {
-            throw new DataIntegrityViolationException("The category is not empty");
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException(Objects.requireNonNull(e.getMessage()));
         }
     }
 
     @Override
     public CategoryDto update(long id, NewCategoryDto newCategoryDto) {
-        Category category = findCategory(id);
+        Category category = GeneralMethods.findCategory(id, categoryRepository);
         try {
             category.setName(newCategoryDto.getName());
             return categoryMapper.toCategoryDto(categoryRepository.save(category));
-        } catch (RuntimeException e) {
-            throw new DataIntegrityViolationException("Category name is already exists");
+        } catch (DataIntegrityViolationException e) {
+            throw new DataIntegrityViolationException(Objects.requireNonNull(e.getMessage()));
         }
-    }
-
-    private Category findCategory(long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", id)));
     }
 }

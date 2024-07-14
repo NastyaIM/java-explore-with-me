@@ -19,11 +19,11 @@ public class EventShortDto {
     private Long id;
     private String annotation;
     private CategoryDto category;
-    private Long confirmedRequests;
+    private int confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
     private UserShortDto initiator;
-    private Boolean paid;
+    private boolean paid;
     private String title;
-    private Long views;
+    private long views;
 }

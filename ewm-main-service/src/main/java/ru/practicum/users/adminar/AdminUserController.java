@@ -22,10 +22,9 @@ public class AdminUserController {
 
     @GetMapping
     public List<UserDto> get(@RequestParam(defaultValue = "") List<Long> ids,
-                             @RequestParam(defaultValue = "0") int from,
-                             @RequestParam(defaultValue = "10") int size) {
+                             @Valid PageParams pageParams) {
         log.info("Получение списка пользователей с id {}", ids);
-        return adminUserService.get(ids, new PageParams(from, size));
+        return adminUserService.get(ids, pageParams);
     }
 
     @PostMapping

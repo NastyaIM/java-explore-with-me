@@ -42,10 +42,8 @@ create table if not exists events (
   participant_limit int not null,
   request_moderation boolean not null,
   published_date timestamp,
-  confirmed_requests int,
   state varchar not null,
   title varchar(120) not null,
-  views bigint,
 
   constraint pk_events primary key (id),
   constraint fk_events_to_categories foreign key(category_id) references categories(id),

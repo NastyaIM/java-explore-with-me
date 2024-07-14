@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import ru.practicum.categories.model.Category;
 import ru.practicum.events.dto.State;
 import ru.practicum.locations.model.Location;
@@ -45,14 +46,14 @@ public class Event {
     private Integer participantLimit;
     @Column(name = "request_moderation", nullable = false)
     private Boolean requestModeration;
-    @Column(name = "confirmed_requests", nullable = false)
-    private Integer confirmedRequests;
     @Column(name = "published_date")
     private LocalDateTime publishedOn;
     @Enumerated(EnumType.STRING)
     private State state;
     @Column(name = "title", nullable = false)
     private String title;
-    @Column(name = "views")
-    private Long views;
+
+    @Formula(value = "select count(r.*) from requests as r " +
+            "where r.event_id = id and r.status = 'CONFIRMED'")
+    private Integer confirmedRequests;
 }

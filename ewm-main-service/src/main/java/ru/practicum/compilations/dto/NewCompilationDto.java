@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -15,8 +14,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewCompilationDto {
-    private Set<Long> events = new HashSet<>();
-    private Boolean pinned = false;
+    private Set<Long> events;
+    private boolean pinned;
     @NotBlank
     @Size(min = 1, max = 50)
     private String title;

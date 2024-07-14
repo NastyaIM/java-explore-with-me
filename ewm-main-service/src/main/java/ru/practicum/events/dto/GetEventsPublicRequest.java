@@ -22,6 +22,6 @@ public class GetEventsPublicRequest {
     private LocalDateTime rangeStart;
     @DateTimeFormat(pattern = Constants.DATE_TIME_FORMAT)
     private LocalDateTime rangeEnd;
-    private boolean onlyAvailable = false;
+    private boolean onlyAvailable;
     private String sort;
 }

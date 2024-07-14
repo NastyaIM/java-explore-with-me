@@ -3,18 +3,15 @@ package ru.practicum.events.adminar.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.categories.model.Category;
 import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
-import ru.practicum.exceptions.DataIntegrityViolationException;
-import ru.practicum.exceptions.IncorrectRequestException;
-import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.exceptions.DataIntegrityException;
 import ru.practicum.locations.dto.LocationMapper;
-import ru.practicum.locations.model.Location;
 import ru.practicum.locations.repository.LocationRepository;
 import ru.practicum.users.repository.UserRepository;
+import ru.practicum.utils.GeneralMethods;
 import ru.practicum.utils.PageParams;
 
 import java.time.LocalDateTime;
@@ -64,60 +61,10 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     @Override
     public EventFullDto update(long id, UpdateEventAdminRequest request) {
-        Event event = findEvent(id);
-
-        LocalDateTime eventDate = request.getEventDate();
-        if (eventDate != null) {
-            checkDateTime(eventDate);
-            event.setEventDate(eventDate);
-        }
-
-        if (request.getAnnotation() != null) {
-            event.setAnnotation(request.getAnnotation());
-        }
-        if (request.getCategory() != null) {
-            Category category = findCategory(request.getCategory());
-            event.setCategory(category);
-        }
-        if (request.getDescription() != null) {
-            event.setDescription(request.getDescription());
-        }
-        if (request.getLocation() != null) {
-            Location location = locationRepository.save(locationMapper.toLocation(request.getLocation()));
-            event.setLocation(location);
-        }
-        if (request.getPaid() != null) {
-            event.setPaid(request.getPaid());
-        }
-        if (request.getParticipantLimit() != null) {
-            event.setParticipantLimit(request.getParticipantLimit());
-        }
-        if (request.getRequestModeration() != null) {
-            event.setRequestModeration(request.getRequestModeration());
-        }
-        if (request.getTitle() != null) {
-            event.setTitle(request.getTitle());
-        }
+        Event event = GeneralMethods.findEvent(id, eventRepository);
+        GeneralMethods.updateEventCommonFields(event, request, 1, categoryRepository, locationRepository, locationMapper);
         updateState(request.getStateAction(), event);
         return eventMapper.toEventFullDto(eventRepository.save(event));
-    }
-
-    private Event findEvent(long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
-    }
-
-    private Category findCategory(long categoryId) {
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", categoryId)));
-    }
-
-    private void checkDateTime(LocalDateTime dateTime) {
-        if (dateTime.isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new IncorrectRequestException("Field: eventDate. " +
-                    "Error: должно содержать дату, которая еще не наступила. " +
-                    "Value: " + dateTime);
-        }
     }
 
     private void updateNullFields(GetEventAdminRequest request) {
@@ -139,11 +86,11 @@ public class AdminEventServiceImpl implements AdminEventService {
                     event.setState(State.PUBLISHED);
                     event.setPublishedOn(LocalDateTime.now());
                 } else {
-                    throw new DataIntegrityViolationException("Event must have state PENDING");
+                    throw new DataIntegrityException("Event must have state PENDING");
                 }
             } else {
                 if (event.getState().equals(State.PUBLISHED)) {
-                    throw new DataIntegrityViolationException("Event must have state PENDING or CANCELED");
+                    throw new DataIntegrityException("Event must have state PENDING or CANCELED");
                 } else {
                     event.setState(State.CANCELED);
                 }

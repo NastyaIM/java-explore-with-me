@@ -25,13 +25,13 @@ public class StatsServiceImpl implements StatsService {
     public List<StatsResponse> stats(GetStatsRequest request) {
         if (request.isUnique()) {
             if (request.getUris().isEmpty()) {
-                return statsRepository.findStatsUniqueIp(request.getStart(), request.getEnd());
+                return statsRepository.findStatsUniqueIpByUri(request.getStart(), request.getEnd());
             }
-            return statsRepository.findStatsByUriUniqueIp(request.getUris(),
+            return statsRepository.findStatsUniqueIpByUri(request.getUris(),
                     request.getStart(), request.getEnd());
         } else {
             if (request.getUris().isEmpty()) {
-                return statsRepository.findStats(request.getStart(), request.getEnd());
+                return statsRepository.findStatsByUri(request.getStart(), request.getEnd());
             }
             return statsRepository.findStatsByUri(request.getUris(),
                     request.getStart(), request.getEnd());

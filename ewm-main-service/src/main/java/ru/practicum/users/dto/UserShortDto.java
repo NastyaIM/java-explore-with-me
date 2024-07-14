@@ -11,7 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserShortDto {
     private Long id;
-    //    @NotBlank
-//    @Size(min = 2, max = 250)
     private String name;
 }
