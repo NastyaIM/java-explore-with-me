@@ -35,14 +35,14 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
             "where s.timestamp between :start and :end " +
             "group by s.app, s.uri " +
             "order by count(distinct s.ip) desc")
-    List<StatsResponse> findStatsUniqueIpByUri(@Param("start") LocalDateTime start,
-                                               @Param("end") LocalDateTime end);
+    List<StatsResponse> findStatsUniqueIp(@Param("start") LocalDateTime start,
+                                          @Param("end") LocalDateTime end);
 
     @Query(value = "select new ru.practicum.StatsResponse(s.app, s.uri, count(s.ip)) " +
             "from Stats as s " +
             "where s.timestamp between :start and :end " +
             "group by s.app, s.uri " +
             "order by count(s.ip) desc")
-    List<StatsResponse> findStatsByUri(@Param("start") LocalDateTime start,
-                                       @Param("end") LocalDateTime end);
+    List<StatsResponse> findStats(@Param("start") LocalDateTime start,
+                                  @Param("end") LocalDateTime end);
 }

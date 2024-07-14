@@ -51,13 +51,12 @@ public class PublicEventServiceImpl implements PublicEventService {
             getPublicRequest.setRangeStart(LocalDateTime.now());
         }
 
-        String rr = request.getRequestURI();
         List<Event> events = eventRepository.search(getPublicRequest.getText(), getPublicRequest.getCategories(), getPublicRequest.getPaid(), getPublicRequest.getRangeStart(),
                         getPublicRequest.getRangeEnd(), getPublicRequest.isOnlyAvailable(), pageParams.getPageRequest())
                 .getContent();
-        sendHitRequestToStatsService(events, request);
-        Map<Long, Long> views = getEventsViews(events);
 
+        Map<Long, Long> views = getEventsViews(events);
+        sendHitRequestToStatsService(request);
         return sort(getPublicRequest.getSort(),
                 events.stream()
                         .map(eventMapper::toEventShortDto)
@@ -73,23 +72,21 @@ public class PublicEventServiceImpl implements PublicEventService {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException(String.format("Event with id=%d was not found", id));
         }
-        sendHitRequestToStatsService(List.of(event), request);
-        long views = getEventsViews(event);
+
+        Map<Long, Long> views = getEventsViews(List.of(event));
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setViews(views);
+        eventFullDto.setViews(views.getOrDefault(event.getId(), 0L));
+        sendHitRequestToStatsService(request);
         return eventFullDto;
     }
 
-    private void sendHitRequestToStatsService(List<Event> events, HttpServletRequest request) {
-        for (Event event : events) {
-            String uri = request.getRequestURI() + "/" + event.getId();
-            statsClient.hit(StatsRequest.builder()
-                    .app(applicationName)
-                    .uri(uri)
-                    .ip(request.getRemoteAddr())
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
+    private void sendHitRequestToStatsService(HttpServletRequest request) {
+        statsClient.hit(StatsRequest.builder()
+                .app(applicationName)
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
+                .timestamp(LocalDateTime.now())
+                .build());
     }
 
     public Map<Long, Long> getEventsViews(List<Event> events) {
@@ -108,20 +105,13 @@ public class PublicEventServiceImpl implements PublicEventService {
                 .build());
         Map<Long, Long> eventViews = new HashMap<>();
         for (StatsResponse view : views) {
+            if (view.getUri().equals(PathConstants.EVENTS)) {
+                continue;
+            }
             long eventId = Long.parseLong(view.getUri().substring(PathConstants.EVENTS.length() + 1));
             eventViews.put(eventId, view.getHits());
         }
         return eventViews;
-    }
-
-    public long getEventsViews(Event event) {
-        List<StatsResponse> views = statsClient.stats(GetStatsRequest.builder()
-                .start(event.getPublishedOn())
-                .end(LocalDateTime.now())
-                .uris(List.of("/events/" + event.getId()))
-                .unique(true)
-                .build());
-        return views.get(0).getHits();
     }
 
     private List<EventShortDto> sort(String sort, List<EventShortDto> events) {
