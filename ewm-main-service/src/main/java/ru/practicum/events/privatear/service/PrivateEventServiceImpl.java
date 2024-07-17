@@ -8,7 +8,9 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exceptions.DataIntegrityException;
 import ru.practicum.exceptions.IncorrectRequestException;
+import ru.practicum.locations.dto.LocationDto;
 import ru.practicum.locations.dto.LocationMapper;
+import ru.practicum.locations.model.Location;
 import ru.practicum.locations.repository.LocationRepository;
 import ru.practicum.requests.dto.*;
 import ru.practicum.requests.model.Request;
@@ -51,7 +53,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         GeneralMethods.checkDateTime(newEventDto.getEventDate(), 2);
 
         Event newEvent = eventMapper.toEvent(newEventDto);
-        locationRepository.save(newEvent.getLocation());
+        setLocation(newEventDto, newEvent);
+
         newEvent.setCreatedOn(LocalDateTime.now());
         newEvent.setInitiator(GeneralMethods.findUser(userId, userRepository));
         newEvent.setState(State.PENDING);
@@ -140,5 +143,16 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                 event.setState(State.PENDING);
             }
         }
+    }
+
+    private void setLocation(NewEventDto newEventDto, Event event) {
+        LocationDto locationDto = newEventDto.getLocation();
+
+        Location location = locationRepository.checkLocationExistence(locationDto.getLat(), locationDto.getLon());
+        if (location == null) {
+            location = locationRepository.save(locationMapper.toLocation(locationDto));
+        }
+
+        event.setLocation(location);
     }
 }

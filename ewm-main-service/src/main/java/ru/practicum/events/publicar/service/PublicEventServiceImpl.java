@@ -13,16 +13,16 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exceptions.IncorrectRequestException;
 import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.locations.dto.GetEventByLocationRequest;
+import ru.practicum.locations.model.Location;
+import ru.practicum.locations.repository.LocationRepository;
 import ru.practicum.utils.GeneralMethods;
 import ru.practicum.utils.PageParams;
 import ru.practicum.utils.PathConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class PublicEventServiceImpl implements PublicEventService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
+    private final LocationRepository locationRepository;
 
     private final StatsClient statsClient;
     @Value("${server.application.name:ewm-service}")
@@ -78,6 +79,33 @@ public class PublicEventServiceImpl implements PublicEventService {
         eventFullDto.setViews(views.getOrDefault(event.getId(), 0L));
         sendHitRequestToStatsService(request);
         return eventFullDto;
+    }
+
+    @Override
+    public List<EventShortDto> getByLocation(GetEventByLocationRequest getEventRequest, PageParams pageParams) {
+        Location location;
+        if (getEventRequest.getId() != null) {
+            location = GeneralMethods.findLocation(getEventRequest.getId(), locationRepository);
+        } else {
+            Double lat = getEventRequest.getLat();
+            Double lon = getEventRequest.getLon();
+            if (lat != null && lon != null) {
+                location = locationRepository.findByLatAndLonAndSavedIsTrue(lat, lon);
+                if (location == null) {
+                    throw new NotFoundException(String.format("Location with lat=$s и lon=$s was not found",
+                            lat, lon));
+                }
+            } else {
+                throw new IncorrectRequestException("");
+            }
+        }
+
+        List<Event> events = eventRepository
+                .findByLocation(location.getLat(), location.getLon(), pageParams.getPageRequest())
+                .getContent();
+        return events.stream()
+                .map(eventMapper::toEventShortDto)
+                .collect(Collectors.toList());
     }
 
     private void sendHitRequestToStatsService(HttpServletRequest request) {

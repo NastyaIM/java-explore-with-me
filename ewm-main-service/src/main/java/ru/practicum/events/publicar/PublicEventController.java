@@ -10,6 +10,7 @@ import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.GetEventsPublicRequest;
 import ru.practicum.events.publicar.service.PublicEventService;
+import ru.practicum.locations.dto.GetEventByLocationRequest;
 import ru.practicum.utils.PageParams;
 import ru.practicum.utils.PathConstants;
 
@@ -36,5 +37,11 @@ public class PublicEventController {
     public EventFullDto getById(@PathVariable long id, HttpServletRequest request) {
         log.info("Получение полной информации о событии с id {}", id);
         return publicEventService.getById(id, request);
+    }
+
+    @GetMapping(PathConstants.LOCATIONS)
+    public List<EventShortDto> getByLocation(@Valid GetEventByLocationRequest getEventRequest,
+                                              @Valid PageParams pageParams) {
+        return publicEventService.getByLocation(getEventRequest, pageParams);
     }
 }

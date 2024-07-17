@@ -10,4 +10,5 @@ public class PathConstants {
     public static final String CATEGORIES = "/categories";
     public static final String REQUESTS = "/requests";
     public static final String CANCEL = "/cancel";
+    public static final String LOCATIONS = "/locations";
 }
