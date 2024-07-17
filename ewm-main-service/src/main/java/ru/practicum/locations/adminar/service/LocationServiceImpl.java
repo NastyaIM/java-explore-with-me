@@ -62,7 +62,7 @@ public class LocationServiceImpl implements LocationService {
         if (updateLocationDto.getName() != null && !updateLocationDto.getName().isBlank()) {
             location.setName(updateLocationDto.getName());
         }
-        if (!location.getSaved()) {
+        if (!location.getSaved() && !location.getName().equals("User location")) {
             location.setSaved(true);
         }
         return locationMapper.toLocationFullDto(locationRepository.save(location));
