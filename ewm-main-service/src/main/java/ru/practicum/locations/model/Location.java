@@ -1,9 +1,6 @@
 package ru.practicum.locations.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +10,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +19,10 @@ public class Location {
     private Double lat;
     @Column(name = "lon", nullable = false)
     private Double lon;
+    @Column(name = "radius")
+    private Double radius;
+    @Column(name = "name")
+    private String name;
+    @Column(name = "saved")
+    private Boolean saved;
 }

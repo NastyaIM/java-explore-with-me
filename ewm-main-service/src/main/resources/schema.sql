@@ -24,9 +24,13 @@ create table if not exists users (
 
 create table if not exists locations (
   id bigint GENERATED always AS IDENTITY not null,
-  lat double not null,
-  lon double not null,
-  constraint pk_locations primary key (id)
+  lat double precision not null,
+  lon double precision not null,
+  radius double precision,
+  name varchar(120),
+  saved boolean,
+  constraint pk_locations primary key (id),
+  constraint uq_location_coordinates unique (lat, lon)
 );
 
 create table if not exists events (
@@ -77,4 +81,3 @@ create table if not exists events_compilations (
   constraint fk_ec_to_events foreign key(event_id) references events(id),
   constraint fk_ec_to_compilations foreign key(compilation_id) references compilations(id)
 );
-
