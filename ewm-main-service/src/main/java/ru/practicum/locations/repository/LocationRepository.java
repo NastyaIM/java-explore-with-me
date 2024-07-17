@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.locations.model.Location;
 
-import java.util.List;
-
 public interface LocationRepository extends JpaRepository<Location, Long> {
     @Query(value = "select l from Location as l " +
             "where (:saved is null or l.saved = :saved) " +

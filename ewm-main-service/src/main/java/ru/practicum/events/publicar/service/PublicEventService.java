@@ -13,5 +13,6 @@ public interface PublicEventService {
     List<EventShortDto> getAll(GetEventsPublicRequest getPublicRequest, PageParams pageParams, HttpServletRequest request);
 
     EventFullDto getById(long id, HttpServletRequest request);
+
     List<EventShortDto> getByLocation(GetEventByLocationRequest getEventRequest, PageParams pageParams);
 }
