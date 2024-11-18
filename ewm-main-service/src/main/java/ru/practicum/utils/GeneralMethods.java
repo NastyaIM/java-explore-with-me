@@ -9,6 +9,7 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exceptions.IncorrectRequestException;
 import ru.practicum.exceptions.NotFoundException;
+import ru.practicum.locations.dto.LocationDto;
 import ru.practicum.locations.dto.LocationMapper;
 import ru.practicum.locations.model.Location;
 import ru.practicum.locations.repository.LocationRepository;
@@ -37,8 +38,12 @@ public class GeneralMethods {
         if (updateEventDto.getDescription() != null && !updateEventDto.getDescription().isBlank()) {
             event.setDescription(updateEventDto.getDescription());
         }
-        if (updateEventDto.getLocation() != null) {
-            Location location = locationRepository.save(locationMapper.toLocation(updateEventDto.getLocation()));
+        LocationDto locationDto = updateEventDto.getLocation();
+        if (locationDto != null) {
+            Location location = locationRepository.checkLocationExistence(locationDto.getLat(), locationDto.getLon());
+            if (location == null) {
+                location = locationRepository.save(locationMapper.toLocation(updateEventDto.getLocation()));
+            }
             event.setLocation(location);
         }
         if (updateEventDto.getPaid() != null) {
@@ -81,5 +86,10 @@ public class GeneralMethods {
     public static Compilation findCompilation(long id, CompilationRepository compilationRepository) {
         return compilationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Compilation with id=%s was not found", id)));
+    }
+
+    public static Location findLocation(long id, LocationRepository locationRepository) {
+        return locationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Location with id=%s was not found", id)));
     }
 }

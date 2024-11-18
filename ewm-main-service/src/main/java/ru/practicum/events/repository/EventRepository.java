@@ -42,4 +42,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Page<Event> search(@Param("text") String text, @Param("categories") List<Long> categories, @Param("paid") Boolean paid,
                        @Param("start") LocalDateTime start, @Param("end") LocalDateTime end,
                        @Param("onlyAvailable") boolean onlyAvailable, Pageable pageable);
+
+    @Query(value = "select e from Event as e " +
+            "left join Location as l on e.location.id = l.id " +
+            "where e.state = 'PUBLISHED' " +
+            "and (l.lat = :lat and l.lon = :lon)")
+    Page<Event> findByLocation(@Param("lat") Double lat, @Param("lon") Double lon, Pageable pageable);
 }

@@ -5,15 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocationDto {
+public class NewLocationDto {
     @NotNull
     @Min(-90)
     @Max(90)
@@ -22,7 +20,9 @@ public class LocationDto {
     @Min(-180)
     @Max(180)
     private Double lon;
-    private String name = "User location";
+    @PositiveOrZero
     private double radius;
-    private boolean saved;
+    @NotBlank
+    @Size(min = 1, max = 120)
+    private String name;
 }
