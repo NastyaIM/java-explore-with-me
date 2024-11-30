@@ -34,3 +34,5 @@
 - GET /events/locations?lat={}&lon={}&from={}&size={};
 
 Тесты postman для фичи: [тут](https://github.com/NastyaIM/java-explore-with-me/blob/main/postman/feature.json)
+
+Стек технологий: Java, Spring Boot, Maven, PostgreSQL, Docker, JPA/Hibernate, REST API.
